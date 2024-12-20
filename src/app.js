@@ -202,6 +202,10 @@ const UserList = () => {
                         ))}
                     </ul>
                 </section>
+                <section id="map-section">
+                    <h2>Mapa</h2>
+                    <img src="/assets/mapa.png" alt="Mapa Local" class="map-image" />
+                </section>
             </main>
 
             <footer>
