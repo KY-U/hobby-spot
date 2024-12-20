@@ -25,6 +25,7 @@ body {
 
 /* Estilo do cabeçalho */
 header {
+    flex-wrap: wrap;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -235,3 +236,21 @@ footer {
     font-size: 14px;
     margin-top: auto; /* Empurra o footer para o final */
 }
+
+/* Estilização do mapa */
+#map-section {
+    text-align: center;
+    margin-top: 20px;
+}
+
+#map-section h2 {
+    margin-bottom: 10px;
+}
+
+.map-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
