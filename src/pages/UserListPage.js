@@ -1,46 +1,64 @@
+// src/pages/UserListPage.js
 import React from 'react';
-import './index.css'; // Certifique-se de que os estilos estão configurados
+import Header from '../components/Header';
+import Footer from '../components/Footer';
+import NearbyUserList from '../components/NearbyUserList';
+import MapComponent from '../components/MapComponent';
 
-const UserListPage = ({ users }) => {
-    return (
-        <div className="App">
-            <header>
-                <div className="logo-with-images">
-                    <a href="#home" className="logo">
-                        <img src="/assets/logo.jpg" alt="Logo HobbySpot" />
-                    </a>
-                </div>
-                <nav className="menu">
-                    <ul>
-                        <li><a href="#home">Home</a></li>
-                        <li><a href="#about">Quem somos</a></li>
-                        <li><a href="#contact">Contato</a></li>
-                    </ul>
-                </nav>
-            </header>
+const EARTH_RADIUS_KM = 6371;
 
-            <main>
-                <section id="user-list">
-                    <h2>Usuários com hobbies semelhantes</h2>
-                    <ul>
-                        {users.length > 0 ? (
-                            users.map((user, index) => (
-                                <li key={index}>
-                                    {user.name} - {user.city}, {user.state} - Hobbies: {user.hobbies.join(", ")}
-                                </li>
-                            ))
-                        ) : (
-                            <li>Nenhum usuário encontrado.</li>
-                        )}
-                    </ul>
-                </section>
-            </main>
+function deg2rad(deg) {
+  return deg * (Math.PI / 180);
+}
 
-            <footer>
-                <p>&copy; 2024 HobbySpot</p>
-            </footer>
-        </div>
+function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
+  const dLat = deg2rad(lat2 - lat1);
+  const dLon = deg2rad(lon2 - lon1);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(deg2rad(lat1)) *
+      Math.cos(deg2rad(lat2)) *
+      Math.sin(dLon / 2) ** 2;
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return EARTH_RADIUS_KM * c;
+}
+
+const UserListPage = () => {
+  // Lê todos os usuários; se não houver, retorna um array vazio.
+  const users = JSON.parse(localStorage.getItem('users')) || [];
+  // Lê o usuário atual; se não houver, define um objeto padrão com hobbies vazio.
+  const currentUser = JSON.parse(localStorage.getItem('lastSubmitted')) || { hobbies: [] };
+
+  // Calcula o array filtrado: somente usuários com coordenadas, não o próprio,
+  // que estejam a até 50 km e compartilhem pelo menos um hobby.
+  const filteredUsers = users.filter(user => {
+    if (!user.lat || !user.lon || !currentUser.lat || !currentUser.lon) return false;
+    if (user.name === currentUser.name) return false;
+    const distance = getDistanceFromLatLonInKm(
+      Number(currentUser.lat),
+      Number(currentUser.lon),
+      Number(user.lat),
+      Number(user.lon)
     );
+    const sharesHobby =
+      Array.isArray(user.hobbies) &&
+      user.hobbies.some(hobby => currentUser.hobbies.includes(hobby));
+    return distance <= 50 && sharesHobby;
+  });
+
+  return (
+    <div className="App">
+      <Header />
+      <main>
+        <h2>Usuários próximos com hobbies semelhantes</h2>
+        {/* Passa o array filtrado para a listagem */}
+        <NearbyUserList filteredUsers={filteredUsers} currentUser={currentUser} />
+        {/* Passa o array filtrado para o mapa */}
+        <MapComponent currentUser={currentUser} filteredUsers={filteredUsers} />
+      </main>
+      <Footer />
+    </div>
+  );
 };
 
 export default UserListPage;

@@ -1,0 +1,126 @@
+/* Variáveis de cores */
+:root {
+    --background-dark: rgba(0, 0, 0, 0.85);
+    --background-light: rgba(0, 0, 0, 0.7);
+    --highlight-color: #ffa500;
+    --hover-highlight: #ff8500;
+    --text-color: #fff;
+    --menu-bg: #001f3f;
+    --menu-hover-bg: #004080;
+  }
+  
+  /* Estilo global */
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    color: var(--text-color);
+    background-image: url('/assets/background.jpg');
+    background-size: cover;
+    background-attachment: fixed;
+    background-position: center;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* Header */
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--background-dark);
+    padding: 15px 30px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+  }
+  
+  .logo-with-images img {
+    max-height: 80px;
+    border-radius: 50%;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+  }
+  
+  nav ul {
+    display: flex;
+    list-style: none;
+    gap: 20px;
+    padding: 0;
+    margin: 0;
+  }
+  
+  nav ul li {
+    padding: 10px 20px;
+    background-color: var(--menu-bg);
+    border-radius: 12px;
+    transition: transform 0.3s, background-color 0.3s;
+  }
+  
+  nav ul li:hover {
+    background-color: var(--menu-hover-bg);
+    transform: scale(1.05);
+  }
+  
+  nav ul li a {
+    text-decoration: none;
+    color: var(--text-color);
+    font-size: 18px;
+    font-weight: bold;
+  }
+  
+  /* Main */
+  main {
+    flex: 1;
+    padding: 40px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  /* Seções */
+  #form-section, #global-user-list, #nearby-user-list, #map-section {
+    background-color: var(--background-light);
+    padding: 30px;
+    border-radius: 10px;
+    width: 80%;
+    max-width: 600px;
+    margin: 20px 0;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    text-align: center;
+  }
+  
+  /* Inputs e botões */
+  input, select {
+    width: 100%;
+    padding: 12px;
+    border-radius: 5px;
+    border: none;
+    font-size: 16px;
+    margin-bottom: 10px;
+  }
+  
+  button {
+    width: 100%;
+    padding: 15px;
+    background-color: var(--highlight-color);
+    border: none;
+    border-radius: 5px;
+    font-size: 18px;
+    font-weight: bold;
+    color: var(--text-color);
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  button:hover {
+    background-color: var(--hover-highlight);
+  }
+  
+  /* Footer */
+  footer {
+    background-color: var(--background-dark);
+    text-align: center;
+    padding: 15px;
+    font-size: 14px;
+  }
+  
