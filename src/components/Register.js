@@ -45,19 +45,18 @@ function Register() {
                 const state = data.address.state || 'Unknown';
                 const country = data.address.country || 'Unknown';
 
-                // Create user data with detailed location
+                // Create user data with detailed location and convert coordinates to numbers
                 const userData = {
                   ...formData,
                   location: {
-                    latitude,
-                    longitude,
+                    latitude: Number(latitude),
+                    longitude: Number(longitude),
                     city,
                     state,
                     country,
                     displayAddress: `${city}, ${state}, ${country}`
                   }
                 };
-
                 // Store user data in localStorage
                 const users = JSON.parse(localStorage.getItem('users') || '[]');
                 users.push(userData);

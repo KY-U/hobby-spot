@@ -6,7 +6,77 @@ function UserPage() {
   // Get user data from localStorage
   const currentUser = JSON.parse(localStorage.getItem('currentUser'));
   const [newHobby, setNewHobby] = useState('');
-
+  const [nearbyUsers, setNearbyUsers] = useState([]);
+  const [isSpotting, setIsSpotting] = useState(false);
+  
+  // Haversine formula to calculate distance between two points
+  const calculateDistance = (lat1, lon1, lat2, lon2) => {
+    const R = 6371; // Earth's radius in kilometers
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+      Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c; // Distance in kilometers
+  };
+  
+  const findNearbyUsers = () => {
+    setIsSpotting(true);
+    const users = JSON.parse(localStorage.getItem('users') || '[]');
+    
+    // Ensure current user has valid location data
+    if (!currentUser?.location?.latitude || !currentUser?.location?.longitude) {
+      setIsSpotting(false);
+      setNearbyUsers([]);
+      return;
+    }
+    
+    const currentLat = currentUser.location.latitude;
+    const currentLon = currentUser.location.longitude;
+    const currentHobbies = currentUser.hobbies || [];
+    
+    const nearbyMatches = users
+      .filter(user => {
+        // Skip current user or users without location data
+        if (user.name === currentUser.name) return false;
+        if (!user?.location?.latitude || !user?.location?.longitude) return false;
+        
+        // Calculate distance
+        const distance = calculateDistance(
+          currentLat,
+          currentLon,
+          user.location.latitude,
+          user.location.longitude
+        );
+    
+        // Check if user is within 50km and has shared hobbies
+        const userHobbies = user.hobbies || [];
+        const sharedHobbies = currentHobbies.filter(hobby => 
+          userHobbies.includes(hobby)
+        );
+    
+        return distance <= 50 && sharedHobbies.length > 0;
+      })
+      .map(user => ({
+        ...user,
+        distance: calculateDistance(
+          currentLat,
+          currentLon,
+          user.location.latitude,
+          user.location.longitude
+        ),
+        sharedHobbies: (user.hobbies || []).filter(hobby => 
+          currentHobbies.includes(hobby)
+        )
+      }))
+      .sort((a, b) => a.distance - b.distance);
+  
+    setNearbyUsers(nearbyMatches);
+    setIsSpotting(false);
+  };
+  
   const handleAddHobby = (e) => {
     e.preventDefault();
     if (newHobby.trim()) {
@@ -30,7 +100,7 @@ function UserPage() {
       window.location.reload(); // Refresh to show updated hobbies
     }
   };
-
+  
   return (
     <div className="min-h-screen relative">
       <Header />
@@ -82,6 +152,39 @@ function UserPage() {
                     </button>
                   </form>
                 </div>
+              </div>
+              <div className="bg-white bg-opacity-20 p-4 rounded-lg">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-xl font-semibold">Find Nearby Hobby Buddies</h2>
+                  <button
+                    onClick={findNearbyUsers}
+                    disabled={isSpotting}
+                    className="bg-white text-blue-600 px-6 py-2 rounded-md font-semibold hover:bg-blue-50 transition-colors disabled:opacity-50"
+                  >
+                    {isSpotting ? 'Searching...' : 'Spot!'}
+                  </button>
+                </div>
+                {nearbyUsers.length > 0 ? (
+                  <div className="space-y-4">
+                    {nearbyUsers.map((user, index) => (
+                      <div key={index} className="bg-white bg-opacity-10 p-4 rounded-lg">
+                        <h3 className="font-semibold text-lg">{user.name}</h3>
+                        <p className="text-sm">{user.location.displayAddress}</p>
+                        <p className="text-sm">Distance: {user.distance.toFixed(1)} km</p>
+                        <div className="mt-2">
+                          <p className="font-medium">Shared Hobbies:</p>
+                          <ul className="list-disc list-inside">
+                            {user.sharedHobbies.map((hobby, idx) => (
+                              <li key={idx}>{hobby}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : nearbyUsers.length === 0 && !isSpotting ? (
+                  <p className="italic">No nearby users found with shared hobbies</p>
+                ) : null}
               </div>
             </div>
           </div>
