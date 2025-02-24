@@ -52,8 +52,8 @@ function App() {
               </div>
 
               {/* Features Section */}
-              <div className="container mx-auto px-4 py-16">
-                <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-white">Why Choose Hobby Spot?</h2>
+              <div id="features" className="container mx-auto px-4 py-16">
+                <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-white">What is it about?</h2>
                 <div className="grid md:grid-cols-3 gap-8">
                   <div className="bg-white bg-opacity-90 p-6 rounded-lg shadow-md">
                     <h3 className="text-xl font-semibold mb-4">Location-Based Matching</h3>
