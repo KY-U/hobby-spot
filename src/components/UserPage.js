@@ -194,24 +194,38 @@ function UserPage() {
                       <Marker position={[currentUser.location.latitude, currentUser.location.longitude]}>
                         <Popup>Your Location</Popup>
                       </Marker>
-                      {/* Nearby users markers */}
-                      {nearbyUsers.map((user, index) => (
-                        user.location?.latitude && user.location?.longitude && (
-                          <Marker key={index} position={[user.location.latitude, user.location.longitude]}>
-                            <Popup>
-                              <div className="p-2">
-                                <h3 className="font-bold">{user.name}</h3>
-                                <p>Distance: {user.distance.toFixed(1)} km</p>
-                                <p>Shared Hobbies:</p>
-                                <ul className="list-disc list-inside">
-                                  {user.sharedHobbies.map((hobby, idx) => (
-                                    <li key={idx}>{hobby}</li>
-                                  ))}
-                                </ul>
-                              </div>
-                            </Popup>
-                          </Marker>
-                        )
+                      {/* Group nearby users by location */}
+                      {Object.values(
+                        nearbyUsers.reduce((acc, user) => {
+                          if (!user.location?.latitude || !user.location?.longitude) return acc;
+                          const key = `${user.location.latitude},${user.location.longitude}`;
+                          if (!acc[key]) acc[key] = [];
+                          acc[key].push(user);
+                          return acc;
+                        }, {})
+                      ).map((users, index) => (
+                        <Marker 
+                          key={index} 
+                          position={[users[0].location.latitude, users[0].location.longitude]}
+                        >
+                          <Popup>
+                            <div className="p-2">
+                              <h3 className="font-bold">{users.length} Hobby {users.length === 1 ? 'Buddy' : 'Buddies'} Found</h3>
+                              {users.map((user, idx) => (
+                                <div key={idx} className="mt-3 border-t pt-2 first:border-t-0 first:pt-0">
+                                  <h4 className="font-semibold">{user.name}</h4>
+                                  <p className="text-sm">Distance: {user.distance.toFixed(1)} km</p>
+                                  <p className="text-sm mt-1">Shared Hobbies:</p>
+                                  <ul className="list-disc list-inside text-sm">
+                                    {user.sharedHobbies.map((hobby, hobbyIdx) => (
+                                      <li key={hobbyIdx}>{hobby}</li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              ))}
+                            </div>
+                          </Popup>
+                        </Marker>
                       ))}
                     </MapContainer>
                   </div>
