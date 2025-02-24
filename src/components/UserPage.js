@@ -1,6 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Footer from './Footer';
 import Header from './Header';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
+
+// Fix Leaflet's default icon issue
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
+  iconUrl: require('leaflet/dist/images/marker-icon.png'),
+  shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
+});
 
 function UserPage() {
   // Get user data from localStorage
@@ -8,7 +19,10 @@ function UserPage() {
   const [newHobby, setNewHobby] = useState('');
   const [nearbyUsers, setNearbyUsers] = useState([]);
   const [isSpotting, setIsSpotting] = useState(false);
-  
+
+
+  // No need for map initialization useEffect with react-leaflet
+
   // Haversine formula to calculate distance between two points
   const calculateDistance = (lat1, lon1, lat2, lon2) => {
     const R = 6371; // Earth's radius in kilometers
@@ -21,7 +35,7 @@ function UserPage() {
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     return R * c; // Distance in kilometers
   };
-  
+
   const findNearbyUsers = () => {
     setIsSpotting(true);
     const users = JSON.parse(localStorage.getItem('users') || '[]');
@@ -76,7 +90,7 @@ function UserPage() {
     setNearbyUsers(nearbyMatches);
     setIsSpotting(false);
   };
-  
+
   const handleAddHobby = (e) => {
     e.preventDefault();
     if (newHobby.trim()) {
@@ -100,7 +114,7 @@ function UserPage() {
       window.location.reload(); // Refresh to show updated hobbies
     }
   };
-  
+
   return (
     <div className="min-h-screen relative">
       <Header />
@@ -164,6 +178,44 @@ function UserPage() {
                     {isSpotting ? 'Searching...' : 'Spot!'}
                   </button>
                 </div>
+                {/* Map Container - Always show when user has location */}
+                {currentUser?.location?.latitude && currentUser?.location?.longitude && (
+                  <div className="w-full h-96 rounded-lg mb-4" style={{ zIndex: 1 }}>
+                    <MapContainer 
+                      center={[currentUser.location.latitude, currentUser.location.longitude]} 
+                      zoom={13} 
+                      style={{ height: '100%', width: '100%' }}
+                    >
+                      <TileLayer
+                        attribution='&copy; <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
+                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                      />
+                      {/* Current user marker */}
+                      <Marker position={[currentUser.location.latitude, currentUser.location.longitude]}>
+                        <Popup>Your Location</Popup>
+                      </Marker>
+                      {/* Nearby users markers */}
+                      {nearbyUsers.map((user, index) => (
+                        user.location?.latitude && user.location?.longitude && (
+                          <Marker key={index} position={[user.location.latitude, user.location.longitude]}>
+                            <Popup>
+                              <div className="p-2">
+                                <h3 className="font-bold">{user.name}</h3>
+                                <p>Distance: {user.distance.toFixed(1)} km</p>
+                                <p>Shared Hobbies:</p>
+                                <ul className="list-disc list-inside">
+                                  {user.sharedHobbies.map((hobby, idx) => (
+                                    <li key={idx}>{hobby}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            </Popup>
+                          </Marker>
+                        )
+                      ))}
+                    </MapContainer>
+                  </div>
+                )}
                 {nearbyUsers.length > 0 ? (
                   <div className="space-y-4">
                     {nearbyUsers.map((user, index) => (
@@ -182,7 +234,7 @@ function UserPage() {
                       </div>
                     ))}
                   </div>
-                ) : nearbyUsers.length === 0 && !isSpotting ? (
+                ) : !isSpotting ? (
                   <p className="italic">No nearby users found with shared hobbies</p>
                 ) : null}
               </div>
