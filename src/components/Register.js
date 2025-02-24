@@ -44,6 +44,9 @@ function Register() {
                 const city = data.address.city || data.address.town || data.address.village || 'Unknown';
                 const state = data.address.state || 'Unknown';
                 const country = data.address.country || 'Unknown';
+                const street = data.address.road || 'Unknown Street';
+                const neighborhood = data.address.suburb || data.address.neighbourhood || data.address.residential || 'Unknown';
+                const postalCode = data.address.postcode || 'Unknown';
 
                 // Create user data with detailed location and convert coordinates to numbers
                 const userData = {
@@ -54,7 +57,10 @@ function Register() {
                     city,
                     state,
                     country,
-                    displayAddress: `${city}, ${state}, ${country}`
+                    street,
+                    neighborhood,
+                    postalCode,
+                    displayAddress: `${street}, ${neighborhood}, ${city}, ${state}, ${country} ${postalCode}`
                   }
                 };
                 // Store user data in localStorage

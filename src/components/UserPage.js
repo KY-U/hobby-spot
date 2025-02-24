@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import Footer from './Footer';
-import Header from './Header';
+import React, { useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
+import Footer from './Footer';
+import Header from './Header';
 
 // Fix Leaflet's default icon issue
 delete L.Icon.Default.prototype._getIconUrl;
